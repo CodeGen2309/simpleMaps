@@ -2,14 +2,18 @@ import paper from "paper"
 
 class cameraItem {
   constructor ({
-    radius = 200, position = (0, 0),
-    scale = 1,    paper = paper
+    radius = 200, position = [0, 0],
+    scale = 1, paper
   }) {
+    this.position = position
+    this.scale = scale
+    this.radius = radius
+
     this.group
     this.eye
     this.area
     this.vZone
-    this.view
+    this.cameraView
 
     this.scale = scale
     this.scaleFactor = 1
@@ -21,7 +25,8 @@ class cameraItem {
     this.scaleAnim = false
     this.areaFading = false
 
-    this.cameraAngle
+    this.cameraAngle = 20
+    this.viewAngle = 40
 
     this.createCamera({scale, position, radius})
     this.initHandlers()
@@ -34,38 +39,38 @@ class cameraItem {
     this.eye   = this.createEye({position, scale})
     this.area  = this.createArea({position, radius, scale})
     this.vZone = this.createZone({position})
+    this.cameraView = this.vZone.intersect(this.area)
+
+    this.cameraView.fillColor = '#8e44ad'
+    this.cameraView.opacity = this.areaOpacity
+
 
     this.group.addChild(this.area)
     this.group.addChild(this.eye)
     this.group.addChild(this.vZone)
-
-    let test = this.vZone.intersect(this.area)
-    test.fillColor = 'yellow'
+    this.group.addChild(this.cameraView)
+    this.group.scale(scale)
   }
 
 
-  createArea ({position = (0, 0), radius = 100, scale = 1}) {
+  createArea ({position = [0, 0], radius = 100, scale = 1}) {
     let area = new paper.Path.Circle(position, radius)
-    area.scale(scale)
-
-    area.opacity = .2
     return area
   }
 
 
-  createEye ({position = (0, 0), scale = 1}) {
+  createEye ({position =[0, 0], scale = 1}) {
     let eye = new paper.Raster({
       source: '/icons/eosMin.png', position
     })
 
-    eye.scale(scale)
     return eye
   }
 
 
-  createZone ({position = (0, 0), length = 300}) {
-    let pOrigin, pClone, angle, fPoint,
-    sPoint, figure
+  createZone ({position = [0, 0], length = 300}) {
+    let pOrigin, pClone, angle,
+    figure
 
     pOrigin = new paper.Path()
     pOrigin.add(position)
@@ -73,8 +78,8 @@ class cameraItem {
     pClone = pOrigin.clone()
 
 
-    pOrigin.rotate(-30, position)
-    pClone.rotate(30, position)
+    pOrigin.rotate(-this.viewAngle, position)
+    pClone.rotate(this.viewAngle, position)
     figure = pOrigin.join(pClone)
 
     return figure
@@ -86,6 +91,25 @@ class cameraItem {
     this.areaOpacity = opacity
     this.areaFading = true
   }
+
+
+  setViewAngle (angle = 30) {
+    this.viewAngle = angle
+
+    this.cameraView.remove()
+    this.vZone.remove()
+
+    this.vZone = this.createZone({
+      position:this.position,
+      length: this.radius + 100,
+    })
+
+    this.cameraView = this.area.intersect(this.vZone)
+    this.cameraView.fillColor = 'white'
+    
+    console.log('WORKED DONE!');
+  }
+
 
   // event hadlers
   initHandlers () {
@@ -120,12 +144,12 @@ class cameraItem {
 
   areaFadeAnimation () {
     let delta = 0.01
-    let trashHold = Math.abs(this.view.opacity - this.areaOpacity)
+    let trashHold = Math.abs(this.cameraView.opacity - this.areaOpacity)
 
-    if (this.view.opacity > this.areaOpacity) { delta = -delta }
+    if (this.cameraView.opacity > this.areaOpacity) { delta = -delta }
     if (trashHold < delta) { this.areaFading = false }
 
-    this.view.opacity += delta
+    this.cameraView.opacity += delta
   }
 
   scaleAnimation () {
@@ -144,11 +168,9 @@ class cameraItem {
 
   update () {
     this.group.onFrame = () => {
-      if (this.fadeAnim)   { this.eyeFading() }
+      if (this.fadeAnim) { this.eyeFading() }
 
-      if (this.areaFading) { 
-        this.areaFadeAnimation() 
-      }
+      if (this.areaFading) { this.areaFadeAnimation() }
     }
   }
 }

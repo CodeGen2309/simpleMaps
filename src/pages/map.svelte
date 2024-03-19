@@ -1,7 +1,8 @@
 <script>
   import { onMount } from "svelte";
   import paper from "paper"
-  import camera from '../components/papers/camera.js'
+  import camera from '../lib/camera.js'
+  import Panel from '../components/toolPanel.svelte'
 
   let mapContainer, canvas, map, mapGroup,
   dragTool, activeCamera
@@ -20,7 +21,8 @@
   })
 
   function eventLogger (ent) {
-    console.log(ent.target);
+    console.log('EVENT!');
+    console.log(ent);
   }
 
   function initDragTool () {
@@ -91,6 +93,10 @@
     item.setAreaOpacity(0.4)
     activeCamera = item
   }
+
+  function changeCameraColor () {
+    activeCamera.setViewAngle(20)
+  }
 </script>
 
 
@@ -102,6 +108,9 @@
 >
   <canvas class="map" bind:this={canvas}></canvas>
 </div>
+
+
+<Panel on:testEvent={ changeCameraColor } ></Panel>
 
 
 
