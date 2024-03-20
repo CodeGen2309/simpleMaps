@@ -27,6 +27,7 @@ class cameraItem {
 
     this.cameraAngle = 20
     this.viewAngle = 40
+    this.viewRadius = 100
 
     this.createCamera({scale, position, radius})
     this.initHandlers()
@@ -36,30 +37,17 @@ class cameraItem {
   
   createCamera ({scale, position, radius}) {
     this.group = new paper.Group()
-    this.eye   = this.createEye({position, scale})
-    this.area  = this.createArea({position, radius, scale})
+    this.eye   = this.createEye({position})
     this.vZone = this.createZone({position})
-    this.cameraView = this.vZone.intersect(this.area)
+    this.cameraView = this.vZone
 
-    this.cameraView.fillColor = '#8e44ad'
-    this.cameraView.opacity = this.areaOpacity
-
-
-    this.group.addChild(this.area)
     this.group.addChild(this.eye)
     this.group.addChild(this.vZone)
-    this.group.addChild(this.cameraView)
     this.group.scale(scale)
   }
 
 
-  createArea ({position = [0, 0], radius = 100, scale = 1}) {
-    let area = new paper.Path.Circle(position, radius)
-    return area
-  }
-
-
-  createEye ({position =[0, 0], scale = 1}) {
+  createEye ({position =[0, 0]}) {
     let eye = new paper.Raster({
       source: '/icons/eosMin.png', position
     })
@@ -68,21 +56,26 @@ class cameraItem {
   }
 
 
-  createZone ({position = [0, 0], length = 300}) {
-    let pOrigin, pClone, angle,
+  createZone ({position = [0, 0]}) {
+    let pOrigin, pClone, circle, area,
     figure
+
+    circle = new paper.Path.Circle(position, this.viewRadius)
 
     pOrigin = new paper.Path()
     pOrigin.add(position)
-    pOrigin.add(position.x + length, position.y)
+    pOrigin.add(position.x + this.viewRadius + 100, position.y)
+
     pClone = pOrigin.clone()
-
-
     pOrigin.rotate(-this.viewAngle, position)
     pClone.rotate(this.viewAngle, position)
     figure = pOrigin.join(pClone)
 
-    return figure
+    area = circle.intersect(figure)
+    area.fillColor = 'green'
+    area.opacity = 0.1
+    
+    return area
   }
 
 
@@ -94,20 +87,16 @@ class cameraItem {
 
 
   setViewAngle (angle = 30) {
-    this.viewAngle = angle
-
-    this.cameraView.remove()
+    this.position = this.eye.position
     this.vZone.remove()
 
     this.vZone = this.createZone({
-      position:this.position,
-      length: this.radius + 100,
+      position: this.position, 
+      radius: 80
     })
 
-    this.cameraView = this.area.intersect(this.vZone)
-    this.cameraView.fillColor = 'white'
-    
-    console.log('WORKED DONE!');
+    this.group.addChild(this.vZone)
+    return true
   }
 
 

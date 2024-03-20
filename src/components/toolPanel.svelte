@@ -1,14 +1,21 @@
 <script>
   import { createEventDispatcher } from "svelte";
 
+  let range, radius
   let emit = createEventDispatcher();
 </script>
 
 
 <div class="tools">
-  <button on:click={ () => emit('testEvent') }>Test1</button>
-  <button on:click={ () => emit('testEvent') }>Test2</button>
-  <button on:click={ () => emit('testEvent') }>Test3</button>
+  <input type="range"
+    on:input={ () => emit('angleEvent', { range }) }
+    bind:value = { range }
+  >
+
+  <input type="range"
+    on:input={ () => emit('radiusEvent', { radius }) }
+    bind:value = { radius }
+  >
 </div>
 
 

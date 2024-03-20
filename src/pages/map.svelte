@@ -94,9 +94,12 @@
     activeCamera = item
   }
 
-  function changeCameraColor () {
-    activeCamera.setViewAngle(20)
+  function changeAngle () {
+    activeCamera.viewAngle++
+
   }
+
+  function changeRadius () {}
 </script>
 
 
@@ -110,7 +113,11 @@
 </div>
 
 
-<Panel on:testEvent={ changeCameraColor } ></Panel>
+<Panel
+  on:angleEvent={ eventLogger }
+  on:radiusEvent={ eventLogger }
+>
+</Panel>
 
 
 
