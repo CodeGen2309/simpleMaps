@@ -3,164 +3,100 @@ import paper from "paper"
 class cameraItem {
   constructor ({
     radius = 200, position = [0, 0],
-    scale = 1, paper
+    scale = 1, paper, angle = 30,
+    cameraAngle = 40
   }) {
     this.position = position
     this.scale = scale
     this.radius = radius
+    this.viewAngle = angle
+    this.cameraAngle = cameraAngle
 
     this.group
     this.eye
-    this.area
-    this.vZone
-    this.cameraView
+    this.viewZone
 
-    this.scale = scale
-    this.scaleFactor = 1
-    this.scaleDelta = 0.005
+    this.areaOpacity = 0.2
 
-    this.areaOpacity = 0.1
-    this.eyeOpacityDelta = 0.05
+    this.eyeFadeAnim = false
+    this.areaFadeAnim = false
 
-    this.scaleAnim = false
-    this.areaFading = false
-
-    this.cameraAngle = 20
-    this.viewAngle = 40
-    this.viewRadius = 100
-
-    this.createCamera({scale, position, radius})
-    this.initHandlers()
-    this.update()
+    this.createCamera()
   }
 
   
-  createCamera ({scale, position, radius}) {
+  createCamera () {
     this.group = new paper.Group()
-    this.eye   = this.createEye({position})
-    this.vZone = this.createZone({position})
-    this.cameraView = this.vZone
+    this.eye   = this.createEye()
+    this.viewZone = this.createZone()
 
     this.group.addChild(this.eye)
-    this.group.addChild(this.vZone)
-    this.group.scale(scale)
+    this.group.addChild(this.viewZone)
+    this.group.scale(this.scale)
   }
 
 
-  createEye ({position =[0, 0]}) {
+  createEye () {
     let eye = new paper.Raster({
-      source: '/icons/eosMin.png', position
+      source: '/icons/eosMin.png',
+      position: this.position
     })
 
     return eye
   }
 
 
-  createZone ({position = [0, 0]}) {
-    let pOrigin, pClone, circle, area,
-    figure
+  createZone () {
+    let lBorder, rBorder, curve,
+    througtPoint, view, psn, rds
 
-    circle = new paper.Path.Circle(position, this.viewRadius)
+    psn = this.position
+    rds = this.radius
 
-    pOrigin = new paper.Path()
-    pOrigin.add(position)
-    pOrigin.add(position.x + this.viewRadius + 100, position.y)
+    lBorder = new paper.Path()
+    lBorder.add(psn)
+    lBorder.add(psn.x + this.radius, psn.y)
 
-    pClone = pOrigin.clone()
-    pOrigin.rotate(-this.viewAngle, position)
-    pClone.rotate(this.viewAngle, position)
-    figure = pOrigin.join(pClone)
+    rBorder = lBorder.clone()
+    lBorder.rotate(-this.viewAngle, psn)
+    rBorder.rotate(this.viewAngle, psn)
 
-    area = circle.intersect(figure)
-    area.fillColor = 'green'
-    area.opacity = 0.1
-    
-    return area
+    througtPoint = lBorder['segments']['1']['point'].add(10)
+
+    curve = new paper.Path.Arc(
+      lBorder['segments']['1']['point'],
+      througtPoint,
+      rBorder['segments']['1']['point']
+    )
+
+    view = lBorder.join(rBorder)
+    view.join(curve)
+
+    view.closed = true
+    view.fillColor = 'green'
+    view.opacity = this.areaOpacity
+    view.rotate(this.cameraAngle, this.position)
+
+
+    return view
   }
 
 
-  // state changers
-  setAreaOpacity (opacity) {
-    this.areaOpacity = opacity
-    this.areaFading = true
+  setViewOpacity (opacity) {
+    this.viewZone.opacity = opacity
   }
 
+  setViewAngle (angle) {
+    this.viewAngle = angle
+    this.viewZone.remove()
+    console.log('removed!');
+    this.viewZone = this.createCamera()
+  }
 
-  setViewAngle (angle = 30) {
+  rotateCamera (angle) {
     this.position = this.eye.position
-    this.vZone.remove()
-
-    this.vZone = this.createZone({
-      position: this.position, 
-      radius: 80
-    })
-
-    this.group.addChild(this.vZone)
-    return true
-  }
-
-
-  // event hadlers
-  initHandlers () {
-    this.group.onMouseEnter = ent => {
-      this.mouseEnterHandler(ent)
-    }
-
-    this.group.onMouseLeave = ent => {
-      this.mouseLeaveHandler(ent)
-    }
-  }
-
-  mouseEnterHandler (ent) {
-    this.fadeAnim = true
-  }
-
-  mouseLeaveHandler (ent) {
-    this.fadeAnim = false
-    this.eye.opacity = 1
-  }
-
-  areaClickHandler (ent) {}
-
-
-  // animaions
-  eyeFading () {
-    if (this.eye.opacity > 1) { this.eyeOpacityDelta = -this.eyeOpacityDelta }
-    if (this.eye.opacity < 0) { this.eyeOpacityDelta = -this.eyeOpacityDelta }
-
-    this.eye.opacity += this.eyeOpacityDelta
-  }
-
-  areaFadeAnimation () {
-    let delta = 0.01
-    let trashHold = Math.abs(this.cameraView.opacity - this.areaOpacity)
-
-    if (this.cameraView.opacity > this.areaOpacity) { delta = -delta }
-    if (trashHold < delta) { this.areaFading = false }
-
-    this.cameraView.opacity += delta
-  }
-
-  scaleAnimation () {
-    this.scaleFactor += this.scaleDelta
-
-    if (this.scaleFactor > 1.3) {
-      this.scaleDelta = -this.scaleDelta
-    }
-
-    if (this.scaleFactor < 0.9) {
-      this.scaleDelta = -this.scaleDelta
-    }
-
-    this.eye.setScaling(this.scaleFactor)
-  }
-
-  update () {
-    this.group.onFrame = () => {
-      if (this.fadeAnim) { this.eyeFading() }
-
-      if (this.areaFading) { this.areaFadeAnimation() }
-    }
+    this.viewZone.rotate(angle / 10, this.position)
+    console.log(this.position);
   }
 }
 

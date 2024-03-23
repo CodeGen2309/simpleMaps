@@ -87,19 +87,23 @@
 
   function changeActiveCamera (item) {
     if (activeCamera) {
-      activeCamera.setAreaOpacity(0.2)
+      activeCamera.setViewOpacity(0.2)
     }
 
-    item.setAreaOpacity(0.4)
     activeCamera = item
+    activeCamera.setViewOpacity(.6)
   }
 
-  function changeAngle () {
-    activeCamera.viewAngle++
 
+  function rotateCamera (ent) {
+    console.log(ent.detail.rotateAngle);
+    activeCamera.rotateCamera(ent.detail.rotateAngle)
   }
 
-  function changeRadius () {}
+
+  function scaleCamera (ent) {
+    console.log(ent);
+  }
 </script>
 
 
@@ -114,8 +118,8 @@
 
 
 <Panel
-  on:angleEvent={ eventLogger }
-  on:radiusEvent={ eventLogger }
+  on:viewAngle={ scaleCamera }
+  on:rotateEvent={ rotateCamera }
 >
 </Panel>
 
