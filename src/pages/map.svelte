@@ -8,6 +8,8 @@
   dragTool, activeCamera
 
   let scaleFactor = 1
+  let currRotate = 0
+  let currScale = 1
 
   onMount(() => {
     paper.setup(canvas)
@@ -96,13 +98,25 @@
 
 
   function rotateCamera (ent) {
-    console.log(ent.detail.rotateAngle);
-    activeCamera.rotateCamera(ent.detail.rotateAngle)
+    let newRotate = ent.detail.rotateAngle
+    let rotateAngle = 10
+
+    if (newRotate == undefined) { return true }
+    if (newRotate < currRotate) { activeCamera.rotateCamera(-rotateAngle) }
+    if (newRotate > currRotate) { activeCamera.rotateCamera(rotateAngle) }
+
+    currRotate = newRotate
   }
 
 
   function scaleCamera (ent) {
-    console.log(ent);
+    let newScale = ent.detail.radius
+
+    if (newScale == undefined) { return true }
+    if (currScale < newScale) { activeCamera.scaleCamera(1.05) }
+    if (currScale > newScale) { activeCamera.scaleCamera(0.95) }
+
+    currScale = newScale
   }
 </script>
 

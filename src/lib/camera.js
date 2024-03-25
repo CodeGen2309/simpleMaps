@@ -95,8 +95,13 @@ class cameraItem {
 
   rotateCamera (angle) {
     this.position = this.eye.position
-    this.viewZone.rotate(angle / 10, this.position)
-    console.log(this.position);
+    this.viewZone.rotate(angle, this.position)
+  }
+
+
+  scaleCamera (delta) {
+    this.position = this.eye.position
+    this.viewZone.scale(delta, this.position)
   }
 }
 
