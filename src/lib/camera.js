@@ -6,6 +6,7 @@ class cameraItem {
     scale = 1, paper, angle = 30,
     cameraAngle = 40
   }) {
+
     this.position = position
     this.scale = scale
     this.radius = radius
@@ -55,13 +56,13 @@ class cameraItem {
 
     lBorder = new paper.Path()
     lBorder.add(psn)
-    lBorder.add(psn.x + this.radius, psn.y)
+    lBorder.add(psn.x, psn.y - rds)
 
     rBorder = lBorder.clone()
     lBorder.rotate(-this.viewAngle, psn)
     rBorder.rotate(this.viewAngle, psn)
 
-    througtPoint = lBorder['segments']['1']['point'].add(10)
+    througtPoint = rBorder['segments']['1']['point'].subtract(5)
 
     curve = new paper.Path.Arc(
       lBorder['segments']['1']['point'],
@@ -75,8 +76,8 @@ class cameraItem {
     view.closed = true
     view.fillColor = 'green'
     view.opacity = this.areaOpacity
-    view.rotate(this.cameraAngle, this.position)
 
+    view.rotate(this.cameraAngle, this.position)
 
     return view
   }
@@ -86,16 +87,21 @@ class cameraItem {
     this.viewZone.opacity = opacity
   }
 
+
   setViewAngle (angle) {
     this.viewAngle = angle
     this.viewZone.remove()
-    console.log('removed!');
-    this.viewZone = this.createCamera()
+    this.viewZone = this.createZone()
+    this.group.addChild(this.viewZone)
   }
 
   rotateCamera (angle) {
     this.position = this.eye.position
-    this.viewZone.rotate(angle, this.position)
+    this.cameraAngle = angle
+
+    this.viewZone.remove()
+    this.viewZone = this.createZone()
+    this.group.addChild(this.viewZone)
   }
 
 

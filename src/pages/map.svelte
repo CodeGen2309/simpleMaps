@@ -76,6 +76,7 @@
   }
 
   function setCamera (ent) {
+
     let item = new camera({
       paper: paper,
       position: ent.point,
@@ -98,14 +99,11 @@
 
 
   function rotateCamera (ent) {
-    let newRotate = ent.detail.rotateAngle
-    let rotateAngle = 10
+    let angle = ent.detail.rotateAngle
 
-    if (newRotate == undefined) { return true }
-    if (newRotate < currRotate) { activeCamera.rotateCamera(-rotateAngle) }
-    if (newRotate > currRotate) { activeCamera.rotateCamera(rotateAngle) }
-
-    currRotate = newRotate
+    if (angle == undefined) { return true }
+    if (activeCamera == undefined) { return true }
+    activeCamera.rotateCamera(angle)
   }
 
 
@@ -117,6 +115,15 @@
     if (currScale > newScale) { activeCamera.scaleCamera(0.95) }
 
     currScale = newScale
+  }
+
+
+  function changeAngle (ent) {
+    let angle = ent.detail.radius
+
+    if (angle == undefined) { return true }
+    if (activeCamera == undefined) { return true }
+    activeCamera.setViewAngle(angle)
   }
 </script>
 
@@ -132,7 +139,7 @@
 
 
 <Panel
-  on:viewAngle={ scaleCamera }
+  on:viewAngle={ changeAngle }
   on:rotateEvent={ rotateCamera }
 >
 </Panel>

@@ -7,12 +7,12 @@
 
 
 <div class="tools">
-  <input type="range"
+  <input type="range" min = "0" max="360"
     on:input={ () => emit('rotateEvent', { rotateAngle }) }
     bind:value = { rotateAngle }
-  >
+  >w
 
-  <input type="range"
+  <input type="range" min="5" max="60"
     on:input={ () => emit('viewAngle', { radius: viewAngle }) }
     bind:value = { viewAngle }
   >
