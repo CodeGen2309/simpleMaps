@@ -12,42 +12,31 @@ class cameraItem {
     this.radius = radius
     this.viewAngle = angle
     this.cameraAngle = cameraAngle
-
-    this.group
-    this.eye
-    this.viewZone
-
     this.areaOpacity = 0.2
 
-    this.eyeFadeAnim = false
-    this.areaFadeAnim = false
-
-    this.createCamera()
+    this.group = new paper.Group()
+    this.eye = this.createEye()
+    this.viewZone = this.createZone()
   }
 
   
-  createCamera () {
-    this.group = new paper.Group()
-    this.eye   = this.createEye()
-    this.viewZone = this.createZone()
-
-    this.group.addChild(this.eye)
-    this.group.addChild(this.viewZone)
-    this.group.scale(this.scale)
-  }
-
-
   createEye () {
     let eye = new paper.Raster({
       source: '/icons/eosMin.png',
       position: this.position
     })
 
+    eye.scale(this.scale)
+    this.group.addChild(eye)
     return eye
   }
 
 
   createZone () {
+    if (this.viewZone != undefined) {
+      this.viewZone.remove()
+    }
+
     let lBorder, rBorder, curve,
     througtPoint, view, psn, rds
 
@@ -62,7 +51,7 @@ class cameraItem {
     lBorder.rotate(-this.viewAngle, psn)
     rBorder.rotate(this.viewAngle, psn)
 
-    througtPoint = rBorder['segments']['1']['point'].subtract(5)
+    througtPoint = rBorder['segments']['1']['point'].subtract(this.viewAngle)
 
     curve = new paper.Path.Arc(
       lBorder['segments']['1']['point'],
@@ -77,37 +66,39 @@ class cameraItem {
     view.fillColor = 'green'
     view.opacity = this.areaOpacity
 
-    view.rotate(this.cameraAngle, this.position)
+    view.rotate(this.cameraAngle, psn)
+    view.scale(this.scale, psn)
 
+    this.group.addChild(view)
     return view
   }
 
 
   setViewOpacity (opacity) {
+    this.areaOpacity = opacity
     this.viewZone.opacity = opacity
   }
 
 
-  setViewAngle (angle) {
+  setViewAngle (angle, scale) {
     this.viewAngle = angle
-    this.viewZone.remove()
+    this.scale = scale
+    this.position = this.eye.position
     this.viewZone = this.createZone()
-    this.group.addChild(this.viewZone)
   }
 
-  rotateCamera (angle) {
-    this.position = this.eye.position
+
+  rotateCamera (angle,scale) {
+    this.scale = scale
     this.cameraAngle = angle
-
-    this.viewZone.remove()
+    this.position = this.eye.position
     this.viewZone = this.createZone()
-    this.group.addChild(this.viewZone)
   }
 
 
-  scaleCamera (delta) {
+  scaleView (radius) {
     this.position = this.eye.position
-    this.viewZone.scale(delta, this.position)
+    this.radius = radius
   }
 }
 

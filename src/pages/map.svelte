@@ -1,8 +1,10 @@
 <script>
   import { onMount } from "svelte";
+
   import paper from "paper"
   import camera from '../lib/camera.js'
   import Panel from '../components/toolPanel.svelte'
+  import utils from '../lib/multiTool.js'
 
   let mapContainer, canvas, map, mapGroup,
   dragTool, activeCamera
@@ -80,7 +82,8 @@
     let item = new camera({
       paper: paper,
       position: ent.point,
-      scale: scaleFactor
+      scale: scaleFactor,
+      cameraAngle: utils.getRandomNumber(0, 360)
     })
 
     mapGroup.addChild(item.group)
@@ -103,7 +106,7 @@
 
     if (angle == undefined) { return true }
     if (activeCamera == undefined) { return true }
-    activeCamera.rotateCamera(angle)
+    activeCamera.rotateCamera(angle, scaleFactor)
   }
 
 
@@ -123,7 +126,7 @@
 
     if (angle == undefined) { return true }
     if (activeCamera == undefined) { return true }
-    activeCamera.setViewAngle(angle)
+    activeCamera.setViewAngle(angle, scaleFactor)
   }
 </script>
 
@@ -139,7 +142,7 @@
 
 
 <Panel
-  on:viewAngle={ changeAngle }
+    on:viewAngle={ changeAngle }
   on:rotateEvent={ rotateCamera }
 >
 </Panel>
