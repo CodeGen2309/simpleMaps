@@ -1,6 +1,6 @@
 import paper from "paper"
 
-class cameraItem {
+export default class {
   constructor ({
     radius = 200, position = [0, 0],
     scale = 1, paper, angle = 30,
@@ -96,12 +96,10 @@ class cameraItem {
   }
 
 
-  scaleView (radius) {
+  changeRadius (radius, scale) {
     this.position = this.eye.position
     this.radius = radius
+    this.scale = scale
+    this.viewZone = this.createZone()
   }
 }
-
-
-
-export default cameraItem

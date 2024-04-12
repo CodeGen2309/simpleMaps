@@ -1,7 +1,7 @@
 <script>
   import { createEventDispatcher } from "svelte";
 
-  let rotateAngle, viewAngle
+  let rotateAngle, viewAngle, radius
   let emit = createEventDispatcher();
 </script>
 
@@ -10,11 +10,16 @@
   <input type="range" min = "0" max="360"
     on:input={ () => emit('rotateEvent', { rotateAngle }) }
     bind:value = { rotateAngle }
-  >w
+  >
 
   <input type="range" min="5" max="60"
-    on:input={ () => emit('viewAngle', { radius: viewAngle }) }
+    on:input={ () => emit('viewAngle', { viewAngle }) }
     bind:value = { viewAngle }
+  >
+
+  <input type="range" min="100" max="600"
+    on:input={ () => emit('radiusEvent', { radius }) }
+    bind:value = { radius }
   >
 </div>
 

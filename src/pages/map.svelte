@@ -30,16 +30,17 @@
   }
 
   function initDragTool () {
+    let mapKey = 'shift'
     dragTool = new paper.Tool()
 
     dragTool.onKeyDown = ent => {
-      if (ent.key == 'control') {
+      if (ent.key == mapKey) {
         mapGroup.onMouseMove = mapDrag
       }
     }
 
     dragTool.onKeyUp = ent => {
-      if (ent.key == 'control') {
+      if (ent.key == mapKey) {
         mapGroup.onMouseMove = null
       }
     }
@@ -78,7 +79,6 @@
   }
 
   function setCamera (ent) {
-
     let item = new camera({
       paper: paper,
       position: ent.point,
@@ -87,8 +87,8 @@
     })
 
     mapGroup.addChild(item.group)
-
     item.group.onClick = ent => changeActiveCamera(item)
+    changeActiveCamera(item)
   }
 
   function changeActiveCamera (item) {
@@ -97,7 +97,7 @@
     }
 
     activeCamera = item
-    activeCamera.setViewOpacity(.6)
+    activeCamera.setViewOpacity(0.6)
   }
 
 
@@ -110,19 +110,19 @@
   }
 
 
-  function scaleCamera (ent) {
-    let newScale = ent.detail.radius
+  function changeRadius (ent) {
+    let rds = ent.detail.radius
+    console.log(rds);
 
-    if (newScale == undefined) { return true }
-    if (currScale < newScale) { activeCamera.scaleCamera(1.05) }
-    if (currScale > newScale) { activeCamera.scaleCamera(0.95) }
+    if (rds == undefined) { return true }
+    if (activeCamera == undefined) { return true }
 
-    currScale = newScale
+    activeCamera.changeRadius(rds, scaleFactor)
   }
 
 
   function changeAngle (ent) {
-    let angle = ent.detail.radius
+    let angle = ent.detail.viewAngle
 
     if (angle == undefined) { return true }
     if (activeCamera == undefined) { return true }
@@ -142,8 +142,9 @@
 
 
 <Panel
-    on:viewAngle={ changeAngle }
+  on:viewAngle={ changeAngle }
   on:rotateEvent={ rotateCamera }
+  on:radiusEvent={ changeRadius }
 >
 </Panel>
 
